@@ -1,7 +1,7 @@
 package main
 
 import "fmt"
-import "github.com/theepicsnail/godepgraph"
+import "github.com/theepicsnail/depgraph"
 
 func main() {
 	fmt.Println("main")
