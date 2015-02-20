@@ -6,7 +6,7 @@ import (
 	"sync"
 )
 
-/* Map and map accessories */
+// Map and map accessories */
 var mapLock = new(sync.RWMutex)
 var nodeMap = make(map[string]*Node)
 
@@ -25,28 +25,28 @@ func writeMap(key string, val *Node) {
 	nodeMap[key] = val
 }
 
-/*
- * Callback that's called when a Node is loaded.
- *
- * The argument is the slice of interface{}s returned from each dependency that
- * was loaded.
- *
- * The returned interface{} value will be passed in to other Loaders that
- * depend on this. It's also the value that's returned from Resolve(name).
- *
- * If the returned error is not nil, then the loader is considered failed, and
- * any dependants will also fail to load.
- */
+//
+// Callback that's called when a Node is loaded.
+//
+// The argument is the slice of interface{}s returned from each dependency that
+// was loaded.
+//
+// The returned interface{} value will be passed in to other Loaders that
+// depend on this. It's also the value that's returned from Resolve(name).
+//
+// If the returned error is not nil, then the loader is considered failed, and
+// any dependants will also fail to load.
+//
 type Loader func(...interface{}) (interface{}, error)
 
 // Convenient value for providing no args.
 var NoDeps = []string{}
 
-/*
- * Private model for the resolution of a Node.
- * This should only ever have 1 non-nil field.
- * These are filled in through errorResolution or valueResolution
- */
+//
+// Private model for the resolution of a Node.
+// This should only ever have 1 non-nil field.
+// These are filled in through errorResolution or valueResolution
+//
 type resolution struct {
 	value interface{}
 	err   error
@@ -61,10 +61,10 @@ func (node *Node) valueResolution(val interface{}) {
 	node.resolution.value = val
 }
 
-/*
- * Models a dependency. This shouldn't really be exposed.
- * TODO: Hide these details. probably move a few things to panics
- */
+//
+// Models a dependency. This shouldn't really be exposed.
+// TODO: Hide these details. probably move a few things to panics
+//
 type Node struct {
 	name       string
 	deps       []string
@@ -73,10 +73,10 @@ type Node struct {
 	resolution *resolution
 }
 
-/*
- * Recursively resolve this nodes dependecies then call this nodes
- * loader function with those dependecies passed in.
- */
+//
+// Recursively resolve this nodes dependecies then call this nodes
+// loader function with those dependecies passed in.
+//
 func (node *Node) resolve() {
 	node.once.Do(func() {
 		// Check that all deps exist in the map first
@@ -124,18 +124,18 @@ func (node *Node) resolve() {
 	})
 }
 
-/*
- * Add a node in the dependency graph.
- * name - Name of the dependency to be added. This is just an arbitrary string
- *        but it must be unique. Dots/underscores/etc.. are all acceptable
- * deps - Slice of dep names. These are passed into the loader callback in the
- *        provided order.
- * loader - Callback to be called when/if this node needs resolved. The value
- *          returned by this method is given to other loaders, or Resolve calls
- *
- * This returns the Node that was created TODO: Stop this.
- * or it returns an error in the case of collisions TODO: this should panic?
- */
+//
+// Add a node in the dependency graph.
+// name - Name of the dependency to be added. This is just an arbitrary string
+//        but it must be unique. Dots/underscores/etc.. are all acceptable
+// deps - Slice of dep names. These are passed into the loader callback in the
+//        provided order.
+// loader - Callback to be called when/if this node needs resolved. The value
+//          returned by this method is given to other loaders, or Resolve calls
+//
+// This returns the Node that was created TODO: Stop this.
+// or it returns an error in the case of collisions TODO: this should panic?
+//
 func NewNode(name string, deps []string, loader Loader) (*Node, error) {
 	node := &Node{
 		name, deps, loader, new(sync.Once), new(resolution),
@@ -151,10 +151,10 @@ func NewNode(name string, deps []string, loader Loader) (*Node, error) {
 	return node, nil
 }
 
-/*
- * Resolve a dependency and get its value (iterface{}) or if it fails to
- * resolve, get the error.
- */
+//
+// Resolve a dependency and get its value (iterface{}) or if it fails to
+// resolve, get the error.
+//
 func Resolve(name string) (interface{}, error) {
 	if node, ok := readMap(name); !ok {
 		return nil, errors.New(fmt.Sprintf("Node '%v' not in graph.", name))
