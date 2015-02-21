@@ -10,17 +10,14 @@ func main() {
 	node("bar", "baz")
 	node("baz", "quuz")
 	node("quz")
-
-	node("bar", "foo")
-
-	b, err := depgraph.Resolve("foo")
+	node("quuz")
+	b := depgraph.Resolve("foo")
 	fmt.Println("Returned value:", b)
-	fmt.Println("Returned error:", err)
 }
 
-func node(name string, deps ...string) (*depgraph.Node, error) {
-	return depgraph.NewNode(name, deps, func(d ...interface{}) (interface{}, error) {
-		fmt.Println("Loaded:", name, deps)
-		return name, nil
+func node(name string, deps ...string) {
+	depgraph.Bind(name, func() interface{} {
+		fmt.Println(name, depgraph.Resolve("mapresolver").(MapResolver)(deps))
+		return name
 	})
 }
